@@ -9,19 +9,22 @@ import android.view.WindowManager
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.custom_layout.*
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var simpleExoPlayer: SimpleExoPlayer
+    private lateinit var dataSourceFactory: DataSource.Factory
+//    private lateinit var uri: Uri
 
     var flag = false
 
@@ -34,7 +37,9 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         //Video url
-        val uri = Uri.parse("https://i.imgur.com/7bMqysJ.mp4")
+//        val uri = Uri.parse("https://i.imgur.com/7bMqysJ.mp4")
+        val uri = intent.getStringExtra("uri")
+
 
         //Initialize load control
         val loadControl = DefaultLoadControl()
@@ -53,13 +58,16 @@ class MainActivity : AppCompatActivity() {
         simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this,trackSelector,loadControl)
 
         //Initialize data source factory
-        val factory = DefaultHttpDataSourceFactory("exoplayer_video")
+//        val factory = DefaultHttpDataSourceFactory("exoplayer_video")
+        dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this,"MyExoPlayer"))
 
         //Initialize extractors factory
-        val extractorFactory = DefaultExtractorsFactory()
+//        val extractorFactory = DefaultExtractorsFactory()
 
         //Initialize media source
-        val mediaSource = ExtractorMediaSource(uri,factory,extractorFactory,null,null)
+//        val mediaSource = ExtractorMediaSource(Uri.parse(uri),factory,extractorFactory,null,null)
+        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(
+            uri))
 
         //set player
         player_view.setPlayer(simpleExoPlayer)
@@ -87,9 +95,9 @@ class MainActivity : AppCompatActivity() {
 //                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 //            }
 
-            override fun onPlayerError(error: ExoPlaybackException?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
+//            override fun onPlayerError(error: ExoPlaybackException?) {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//            }
 
             override fun onLoadingChanged(isLoading: Boolean) {
                 if (isLoading){
